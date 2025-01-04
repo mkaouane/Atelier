@@ -1,0 +1,14 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.atelier
+productName: Atelier
+win:
+  target:
+    - portable
+  icon: build/icon.png
+  signAndEditExecutable: false
+portable:
+  artifactName: Atelier.exe
+files: []
+electronVersion: 28.3.3

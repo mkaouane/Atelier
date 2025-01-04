@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Atelier</title>
+    <style>
+        :root[data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f8f9fa;
+            --card-border: #e9ecef;
+            --modal-bg: #ffffff;
+            --hover-bg: #f0f0f0;
+            --copy-flash: #e8f5e9;
+            --copy-flash-mid: #a5d6a7;
+            --input-bg: #ffffff;
+            --border-color: #e9ecef;
+            --accent-color: #4CAF50;
+            --accent-color-transparent: rgba(76, 175, 80, 0.2);
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --text-color: #e2e2f0;
+            --card-bg: #252542;
+            --card-border: #363663;
+            --modal-bg: #252542;
+            --hover-bg: #2f2f52;
+            --copy-flash: #2d2d4d;
+            --copy-flash-mid: #363663;
+            --input-bg: #252542;
+            --border-color: #363663;
+            --accent-color: #4CAF50;
+            --accent-color-transparent: rgba(76, 175, 80, 0.2);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #theme-toggle:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        #itemsList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        #workshopItems {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .item-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .item-card img {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 10px;
+        }
+
+        .item-card h3 {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .profit-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: help;
+        }
+
+        .profit-indicator.profit {
+            color: #4CAF50;
+        }
+
+        .profit-indicator.loss {
+            color: #f44336;
+        }
+
+        .profit-details {
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--bg-color);
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 800px;
+            max-height: 96vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            color: var(--text-color);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            transition: all 0.2s ease;
+        }
+
+        .close:hover {
+            color: #f44336;
+            border-color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        #itemDetails {
+            overflow-y: auto;
+            max-height: calc(96vh - 40px);
+            padding: 20px;
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1;
+        }
+
+        .modal-header img {
+            width: 64px;
+            height: 64px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .recipe-content {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .recipe-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .recipe-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--bg-color);
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .recipe-list li:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .recipe-list img {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+        }
+
+        .ingredient-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .ingredient-card:hover {
+            transform: scale(1.05);
+            background-color: var(--hover-bg);
+        }
+
+        .ingredient-card.copied {
+            background-color: var(--copy-flash);
+            animation: copy-flash 0.5s;
+        }
+
+        @keyframes copy-flash {
+            0% { background-color: var(--copy-flash); }
+            50% { background-color: var(--copy-flash-mid); }
+            100% { background-color: var(--copy-flash); }
+        }
+
+        .ingredient-card img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+        }
+
+        .ingredient-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ingredient-name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .ingredient-quantity {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #loadingIndicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .workshop-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            width: 80%;
+            max-width: 120px;
+        }
+
+        .workshop-btn.add {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .workshop-btn.remove {
+            background-color: var(--card-border);
+            color: var(--text-color);
+        }
+
+        .workshop-btn.remove:hover {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .workshop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .in-workshop {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+        }
+
+        #view-toggle {
+            position: fixed;
+            top: 20px;
+            right: 120px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #view-toggle:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .price-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-input input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px;
+            border-radius: 4px;
+            width: 120px;
+            font-size: 14px;
+        }
+
+        .price-input input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color-transparent);
+        }
+
+        .price-input .total-price {
+            color: var(--text-color);
+            font-size: 0.9em;
+            min-width: 120px;
+        }
+
+        .item-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            color: var(--text-color);
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .recipe-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recipe-list li:last-child {
+            border-bottom: none;
+        }
+
+        .price-comparison {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-comparison .total-price {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .price-comparison .total-price span {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-comparison .total-price span::before {
+            content: "•";
+            color: var(--card-border);
+        }
+
+        .price-comparison .comparison-icon {
+            font-size: 32px;
+            padding: 10px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+        .price-comparison .profit {
+       
+        }
+
+        .price-comparison .loss {
+       
+        }
+
+        .recipe-list li {
+            justify-content: space-between;
+            padding: 12px;
+        }
+
+        .recipe-list li .item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recipe-list li .price-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recipe-list li .total-price {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .recipe-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .recipe-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+        }
+
+        .recipe-list img {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .price-comparison {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+        }
+
+        .price-comparison .total-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .price-comparison .comparison-icon {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+
+        .price-comparison .profit {
+            color: #4CAF50;
+        }
+
+        .price-comparison .loss {
+            color: #f44336;
+        }
+
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .total-resources {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-bg);
+        }
+
+        .workshop-total {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .workshop-total .total-label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .workshop-total .total-amount {
+            font-size: 18px;
+            color: #4CAF50;
+        }
+
+        #workshopView, #searchView {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #workshopView h2 {
+            padding: 0 20px;
+        }
+
+        .item-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+        }
+
+        .price-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .total-price {
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
+        .hdv-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .hdv-price label {
+            font-weight: bold;
+            color: var(--text-color);
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        .hdv-price input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px;
+            border-radius: 4px;
+            width: 120px;
+            font-size: 14px;
+        }
+
+        .hdv-price input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color-transparent);
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle"> </button>
+    <button id="view-toggle">Voir l'atelier</button>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Rechercher un item...">
+    </div>
+    <div id="loadingIndicator">Chargement...</div>
+    
+    <div id="workshopView" style="display: none;">
+        <h2>Atelier</h2>
+        <div id="workshopItems"></div>
+        <div id="workshopTotal" class="workshop-total">
+            <span class="total-label">Total optimal :</span>
+            <span class="total-amount">0 kamas</span>
+        </div>
+    </div>
+    
+    <div id="searchView">
+        <div id="itemsList"></div>
+    </div>
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="itemDetails"></div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "Atelier",
+  "version": "1.0.0",
+  "description": "Application pour rechercher des items Dofus et leurs crafts",
+  "main": "main.js",
+  "scripts": {
+    "start": "set NODE_ENV=development && electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --dir",
+    "dist": "set NODE_ENV=production && electron-builder --win portable --config.win.signAndEditExecutable=false"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.2",
+    "axios": "^1.6.2",
+    "lowdb": "^1.0.0"
+  },
+  "build": {
+    "appId": "com.atelier",
+    "productName": "Atelier",
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "build/icon.png",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "Atelier.exe"
+    }
+  }
+}

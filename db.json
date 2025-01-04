@@ -1,0 +1,17 @@
+{
+  "workshopItems": [
+    {
+      "itemId": 70,
+      "name": "Amulette du Hibou",
+      "level": 8,
+      "iconId": 1001,
+      "type": "Amulette",
+      "addedAt": "2025-01-04T01:12:34.477Z",
+      "ingredients": {
+        "385": 2,
+        "16524": 2
+      },
+      "hdvPrice": 2
+    }
+  ]
+}
